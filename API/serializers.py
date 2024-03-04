@@ -16,7 +16,7 @@ class BookSerializers(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(queryset=Author.objects.all(),many=True)
     class Meta:
         model = Book
-        fields = ['name','author','customer','price','page_number','age_category']
+        exclude = ['content']
 
 class BookCustomerSerializers(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(),many=True)
