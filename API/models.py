@@ -21,5 +21,8 @@ class Book (models.Model):
     age_category = models.PositiveIntegerField()
     content = models.TextField()
 
+class By (models.Model):
+    customer = models.ForeignKey(Customer,related_name='customer',on_delete=models.CASCADE)
+    book = models.ForeignKey(Book,related_name='book',on_delete=models.CASCADE)
 
 
