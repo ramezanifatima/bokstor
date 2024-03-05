@@ -6,20 +6,22 @@ from . models import Customer, Book
 from .serializers import CustomersSerializers, BookSerializers, BookCustomerSerializers
 from rest_framework.permissions import BasePermission
 
-class CustomPermission(BasePermission):
-    def has_permission(self, request, view):
-        book_id = view.kwargs['pk']
-        if request.user.is_authenticated:
-            if Book.objects.filter(pk = book_id,customer=request.user):
-                BookViewsets.serializer_class=BookCustomerSerializers
-                return True
-        return False
+class BookViewsets(GenericViewSet):
+    queryset = Book.objects.all().defer('content')
+    serializer_class = BookCustomerSerializers
+
+    def list(self,request):
+        serializer = self.get_serializer(self.get_queryset(),many=True)
+        return Response(serializer.data)
+    def retrieve(self,request,pk=None):
+        if not request.user.is_authenticated:
+            return Response({'massage': 'pleas login!!'})
+        book = Book.objects.get(pk=pk)
+        customer = request.user.customer
+        if customer.book.filter(pk=pk).exists():
+            serializer = BookCustomerSerializers(book)
+            return Response(serializer.data)
+        else:
+            return Response({'massage':'your can not by in book!!'})
 
 
-class BookViewsets(mixins.ListModelMixin,
-                   mixins.RetrieveModelMixin,
-                   GenericViewSet
-                   ):
-       queryset = Book.objects.all()
-       serializer_class = BookSerializers
-       permission_classes = [CustomPermission]

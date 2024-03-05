@@ -7,7 +7,7 @@ class Author (models.Model):
 
 
 class Customer (models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,default=None,related_name='customer')
     name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=11)
     age = models.PositiveIntegerField()
