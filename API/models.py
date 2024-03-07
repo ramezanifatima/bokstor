@@ -2,29 +2,24 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 
-class Author (models.Model):
-    name = models.CharField(max_length=50)
 
 
-class Customer (models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,default=None,related_name='customer')
-    name = models.CharField(max_length=50)
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None, related_name='profile')
     phone_number = models.CharField(max_length=11)
     age = models.PositiveIntegerField()
-
+    is_author = models.BooleanField()
 
 class Book (models.Model):
     name = models.CharField(max_length=50)
-    author = models.ManyToManyField(Author)
+    author = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='written_book')
     published_date = models.DateField(auto_now_add=True)
-    price = models.DecimalField(max_digits=10, decimal_places= 2 )
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     page_number = models.PositiveIntegerField()
-    customer = models.ForeignKey(Customer,on_delete=models.SET_NULL, blank=True, null=True,related_name='book')
+    customer = models.ManyToManyField(Profile,related_name='purchased_books')
     age_category = models.PositiveIntegerField()
     content = models.TextField()
 
-class By (models.Model):
-    customer = models.ForeignKey(Customer,related_name='customer',on_delete=models.CASCADE)
-    book = models.ForeignKey(Book,related_name='book',on_delete=models.CASCADE)
 
 
