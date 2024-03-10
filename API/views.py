@@ -6,13 +6,13 @@ from . models import Profile, Book
 from .serializers import BookSerializers, ProfileSerializer
 
 class BookViewsets(GenericViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.defer('content')
     serializer_class = BookSerializers
 
     def list(self,request):
         serializer = self.get_serializer(self.queryset,many=True)
         print(self.queryset)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def retrieve(self,request,pk=None):
@@ -20,11 +20,13 @@ class BookViewsets(GenericViewSet):
             return Response({'massage': 'pleas login!!'})
         book = Book.objects.get(pk=pk)
         user = request.user.profile
-        if user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists():
+        user_status = user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists()
+
+        if user_status:
             serializer = self.get_serializer(book)
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         else:
-            return Response({'massage': 'your can not by in book!!'})
+            return Response({'massage': 'your can not by in book!!'},status=status.HTTP_403_FORBIDDEN)
 
     def update(self, request, pk=None):
         book = Book.objects.get(pk=pk)
