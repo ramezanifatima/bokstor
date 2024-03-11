@@ -10,14 +10,12 @@ class BookViewsets(GenericViewSet):
     serializer_class = BookSerializers
 
     def list(self,request):
-        serializer = self.get_serializer(self.queryset,many=True)
+        serializer = self.get_serializer(self.get_queryset(),many=True)
         print(self.queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def retrieve(self,request,pk=None):
-        if not request.user.is_authenticated:
-            return Response({'massage': 'pleas login!!'})
         book = Book.objects.get(pk=pk)
         user = request.user.profile
         user_status = user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists()
@@ -34,7 +32,7 @@ class BookViewsets(GenericViewSet):
         if user.written_book.filter(pk=pk).exists():
             serializer = self.get_serializer(book, data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                serializer.update(book, request.data)
                 return Response(serializer.data)
             return  Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         else:
