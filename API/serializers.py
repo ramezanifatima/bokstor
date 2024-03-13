@@ -30,3 +30,8 @@ class BookSerializers(serializers.ModelSerializer):
             instance.save()
             return instance
 
+class BookCustomerSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Book
+        exclude = 'content'

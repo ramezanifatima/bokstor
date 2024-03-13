@@ -3,11 +3,11 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework import status
 
 from . models import Profile, Book
-from .serializers import BookSerializers, ProfileSerializer
+from .serializers import BookSerializers, ProfileSerializer,BookCustomerSerializers
 
 class BookViewsets(GenericViewSet):
     queryset = Book.objects.defer('content')
-    serializer_class = BookSerializers
+    serializer_class = BookCustomerSerializers
 
     def list(self,request):
         serializer = self.get_serializer(self.get_queryset(),many=True)
@@ -21,7 +21,7 @@ class BookViewsets(GenericViewSet):
         user_status = user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists()
 
         if user_status:
-            serializer = self.get_serializer(book)
+            serializer = BookSerializers
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'massage': 'your can not by in book!!'},status=status.HTTP_403_FORBIDDEN)
@@ -31,9 +31,8 @@ class BookViewsets(GenericViewSet):
         user = request.user.profile
         if user.written_book.filter(pk=pk).exists():
             serializer = self.get_serializer(book, data=request.data)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exeption=True):
                 serializer.update(book, request.data)
                 return Response(serializer.data)
-            return  Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'massage': 'your can not update that book!!'},status=status.HTTP_403_FORBIDDEN)
