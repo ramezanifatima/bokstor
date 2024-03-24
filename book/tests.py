@@ -1,8 +1,6 @@
 import json
-
 from .models import Book, Profile
 from django.contrib.auth.models import User
-
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -39,38 +37,38 @@ class BaseTestCase(APITestCase):
 
 class BookAPItest(BaseTestCase):
     def test_list_book_author(self):
-        url = "book/"
-        self.client.force_login(self.author)
+        url = "http://127.0.0.1:8000/book/"
+        self.client.force_login(self.author.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_book_customer(self):
-        url = "book/"
-        self.client.force_login(self.customer)
+        url = "http://127.0.0.1:8000/book/"
+        self.client.force_login(self.customer.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_book_normal(self):
-        url = "book/"
-        self.client.force_login(self.unauthorized_user)
+        url = "http://127.0.0.1:8000/book/"
+        self.client.force_login(self.unauthorized_user.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_book_author(self):
-        url = f"book/{self.book_1.id}"
-        self.client.force_login(self.author)
+        url = f"http://127.0.0.1:8000/book/{self.book_1.id}/"
+        self.client.force_login(self.author.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_book_customer(self):
-        url = f"book/{self.book_1.id}"
-        self.client.force_login(self.customer)
+        url = f"http://127.0.0.1:8000/book/{self.book_1.id}/"
+        self.client.force_login(self.customer.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_book_unauthorized_user(self):
-        url = f"book/{self.book_1.id}"
-        self.client.force_login(self.unauthorized_user)
+        url = f"http://127.0.0.1:8000/book/{self.book_1.id}/"
+        self.client.force_login(self.unauthorized_user.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

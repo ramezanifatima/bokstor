@@ -17,15 +17,16 @@ class BookViewsets(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericVi
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        book = Book.objects.get(pk=pk)
-        user = request.user.make_profile
-        user_status = user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists()
+        book = Book.objects.filter(pk=pk).first()
+        if book:
+            user = request.user.profile
+            user_status = user.purchased_books.filter(pk=pk).exists() or user.written_book.filter(pk=pk).exists()
+            if user_status:
+                serializer = BookSerializers(book)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({'massage': 'your can not by in book!!'}, status=status.HTTP_403_FORBIDDEN)
 
-        if user_status:
-            serializer = BookSerializers(book)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({'massage': 'your can not by in book!!'}, status=status.HTTP_403_FORBIDDEN)
 
     def update(self, request, pk=None, *args, **kwargs):
         book = Book.objects.get(pk=pk)
