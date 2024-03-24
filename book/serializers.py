@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Book, Profile
+from .models import Book, Profile, Purchase
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -34,3 +34,9 @@ class BookCustomerSerializers(serializers.ModelSerializer):
     class Meta:
         model = Book
         exclude = ['content']
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Purchase
+        fields = '__all__'
