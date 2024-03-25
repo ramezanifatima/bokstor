@@ -7,4 +7,4 @@ router = DefaultRouter()
 router.register(r'book', views.BookViewsets, basename=None)
 urlpatterns = [
 
-]+router.urls
+              ] + router.urls

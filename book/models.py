@@ -26,6 +26,10 @@ class Book(models.Model):
     def __str__(self):
         return self.name
 
+    def own(self, customer):
+        self.customer = customer
+        self.save()
+
 
 class Purchase(models.Model):
     product = models.ForeignKey(Book, on_delete=models.CASCADE)
