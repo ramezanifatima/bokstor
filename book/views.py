@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework import mixins
 
 from .models import Profile, Book, Purchase
-from .serializers import BookSerializers, ProfileSerializer, BookCustomerSerializers, PurchaseSerializer
+from .serializers import BookSerializers, ProfileSerializer, BookCustomerSerializers, PurchaseSerializer, \
+    RequestSerializer
 
 
 class BookViewsets(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
@@ -40,23 +41,29 @@ class BookViewsets(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericVi
         else:
             return Response({'massage': 'your can not update that book!!'}, status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=['POST'], url_path='purchase/<int:pk>', url_name='purchase')
+    @action(detail=True, methods=['POST'], url_path='purchase/<int:pk>/<int:quantity>', url_name='purchase')
     def purchase(self, request, pk=None, *args, **kwargs):
-        book = Book.objects.get_or_404(pk=pk)
-        quantity = request.data.get('q', 1)
-        total_price = book.price * quantity
-        purchase_data = {
-            'product': book,
-            'user': request.user.profile,
-            'quantity': quantity,
-            'total_price': total_price
-        }
-        Purchase.objects.create(product=book, user=request.user.profile, quantity=quantity,
-                                total_price=total_price)
-        book.own(request.user)
-        serializer = PurchaseSerializer(data=purchase_data)
+        requestSerializer = RequestSerializer(data=request.data)
+        if requestSerializer.is_valid():
+            pk = requestSerializer.validated_data.get(pk)
+            quantity = requestSerializer.validated_data.get('quantity')
+            book = Book.objects.get_or_404(pk=pk)
+            quantity = quantity
+            total_price = book.price * quantity
+            purchase_data = {
+                'product': book,
+                'user': request.user.profile,
+                'quantity': quantity,
+                'total_price': total_price
+            }
+            Purchase.objects.create(product=book, user=request.user.profile, quantity=quantity,
+                                    total_price=total_price)
+            book.own(request.user)
+            serializer = PurchaseSerializer(data=purchase_data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'massage': 'The purchase was successful'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'massage': 'The purchase was successful'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(requestSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

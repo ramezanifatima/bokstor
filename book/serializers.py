@@ -40,3 +40,9 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = '__all__'
+
+
+class RequestSerializer(serializers.Serializer):
+    pk = serializers.IntegerField()
+    quantity = serializers.IntegerField(default=1)
+
